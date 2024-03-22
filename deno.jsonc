@@ -1,12 +1,13 @@
 {
     "name": "@cross/dir",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "exports": "./mod.ts",
 
     "tasks": {
+        "check-deps": "deno run -A jsr:@check/deps",
         "publish-dry": "deno publish --dry-run"
     },
-    "lock": false,
+    "lock": true,
     "fmt": {
         "lineWidth": 120,
         "indentWidth": 4
@@ -15,8 +16,6 @@
         "@cross/deepmerge": "jsr:@cross/deepmerge@^1.0.0",
         "@cross/env": "jsr:@cross/env@^1.0.0",
         "@cross/runtime": "jsr:@cross/runtime@^1.0.0",
-        "@cross/test": "jsr:@cross/test@^0.0.8",
-        "@cross/utils": "jsr:@cross/utils@^0.6.2",
-        "@std/assert": "jsr:@std/assert@^0.219.1"
+        "@cross/utils": "jsr:@cross/utils@^0.7.0"
     }
 }

@@ -59,13 +59,6 @@ export enum DirectoryTypes {
 }
 
 /**
- * A union type representing the valid string names of the standard directory types defined in the
- * `DirectoryTypes` enum. This type ensures that only correct directory names can be provided to functions
- * that utilize it.
- */
-export type DirectoryTypeStrings = keyof typeof DirectoryTypes;
-
-/**
  * Checks if a configuration item is specifically for Windows special folders.
  * @param {WindowsDirectoryPathConfigItem} item - The configuration item
  * @returns {boolean} True if 'winSpecialFolder' property is true, otherwise false.
@@ -204,7 +197,7 @@ type UnixDirectoryPathConfigItem = {
  * @property {UnixDirectoryPathConfigItem[]} [linux] - Array of Linux configuration items
  * @property {UnixDirectoryPathConfigItem[]} [macos] - Array of macOS configuration items
  */
-type DirectoryPathConfig = {
+export type DirectoryPathConfig = {
     windows?: WindowsDirectoryPathConfigItem[];
     linux?: UnixDirectoryPathConfigItem[];
     macos?: UnixDirectoryPathConfigItem[];
