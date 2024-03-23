@@ -42,7 +42,7 @@ export async function dir(type: string, parseWindowsSpecialDirectories?: boolean
 
     for (const config of configs) {
         if (platform === "windows" && isWindowsConfigItem(config)) {
-            if(parseWindowsSpecialDirectories) {
+            if (parseWindowsSpecialDirectories) {
                 const ps = await spawn([
                     "powershell",
                     "-Command",
@@ -64,8 +64,10 @@ export async function dir(type: string, parseWindowsSpecialDirectories?: boolean
         }
     }
 
-    if(gotWindowsConfigItem) {
-        throw new Error(`No environment variable set for ${dirType} on ${platform}, run dir() with parseWindowsSpecialDirectories parameter set to true to parse windows special directories.`);
+    if (gotWindowsConfigItem) {
+        throw new Error(
+            `No environment variable set for ${dirType} on ${platform}, run dir() with parseWindowsSpecialDirectories parameter set to true to parse windows special directories.`,
+        );
     } else {
         throw new Error(`No environment variable set for ${dirType} on ${platform}`);
     }
