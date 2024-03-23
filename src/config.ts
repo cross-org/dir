@@ -159,7 +159,7 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
     },
     [DirectoryTypes.tmp]: {
         windows: [{ key: "TMP" }],
-        linux: [{ key: "TMPDIR" }],
+        linux: [{ key: "TMPDIR", defaultDir: "/tmp" }],
         macos: [{ key: "TMPDIR" }],
     },
     [DirectoryTypes.video]: {
@@ -173,11 +173,13 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
  * Configuration item for Windows directory paths.
  * @property {string} key -  Environment variable name
  * @property {string} [extraFolder] - Optional subfolder to append
+ * @property {string} [defaultDir] - Optional default directory if "key" is undefined
  * @property {boolean} [winSpecialFolder] - Indicates if a Windows special folder
  */
 type WindowsDirectoryPathConfigItem = {
     key: string;
     extraFolder?: string;
+    defaultDir?: string;
     winSpecialFolder?: boolean;
 };
 
@@ -185,10 +187,12 @@ type WindowsDirectoryPathConfigItem = {
  * Configuration item for Unix (Linux/macOS) directory paths.
  * @property {string} key -  Environment variable name
  * @property {string} [extraFolder] - Optional subfolder to append
+ * @property {string} [defaultDir] - Optional default directory if "key" is undefined
  */
 type UnixDirectoryPathConfigItem = {
     key: string;
     extraFolder?: string;
+    defaultDir?: string;
 };
 
 /**

@@ -38,25 +38,23 @@ export async function dir(type: string): Promise<string> {
     }
 
     for (const config of configs) {
+        let baseEnv;
         if (platform === "windows" && isWindowsConfigItem(config)) {
             const ps = await spawn([
                 "powershell",
                 "-Command",
                 `[Environment]::GetFolderPath('${config.key}')`,
             ]);
-            const baseEnv = ps.stdout.trim();
-
-            if (baseEnv) {
-                const fullPath = config.extraFolder ? `${baseEnv}${config.extraFolder}` : baseEnv;
-                return fullPath;
-            }
+            baseEnv = ps.stdout.trim();
         } else {
-            // Handle non-Windows logic
-            const baseEnv = getEnv(config.key);
-            if (baseEnv) {
-                const fullPath = config.extraFolder ? `${baseEnv}${config.extraFolder}` : baseEnv;
-                return fullPath;
-            }
+            baseEnv = getEnv(config.key);
+        }
+
+        if (baseEnv) {
+            const fullPath = config.extraFolder ? `${baseEnv}${config.extraFolder}` : baseEnv;
+            return fullPath;
+        } else if (config.defaultDir) {
+            return config.defaultDir;
         }
     }
 
