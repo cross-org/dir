@@ -39,7 +39,7 @@ import relevant functions.
 ```javascript
 import { dir } from "@cross/dir";
 ```
-
+Usage
 ```javascript
 const userHome = await dir("home");
 // or
@@ -49,29 +49,37 @@ console.log(`Home directory: ${await dir("home")}`);
 const userHome = await dir(DirectoryTypes.home);
 ```
 
+**Note concerning Windows special folders**
+
+If no environment variable is configured for the directory or if it returns empty the program can try to parse the [special folders](https://learn.microsoft.com/en-us/dotnet/api/system.environment.specialfolder?view=net-8.0) found on windows systems if you supply a true argument for the second parameter of `dir()`, the optional parseWindowsSpecialDirectories parameter. Powershell will be used to resolve the directory path.
+
+```javascript
+const userHome = await dir("home", true);
+```
+
 ## Supported directories
 
-| Directory Type | Description                                                                | Windows | Linux | macOS |
-| -------------- | -------------------------------------------------------------------------- | ------- | ----- | ----- |
-| home           | The user's home directory.                                                 | X       | X     | X     |
-| cache          | A directory for storing application-specific cache data.                   | X       | X     | X     |
-| config         | A directory for storing application configuration data.                    | X       | X     | X     |
-| data           | A directory for storing application-specific data (non-cache).             | X       | X     | X     |
-| data_local     | A directory for storing application-specific local (non-roaming) data.     | X       | X     | X     |
-| download       | The user's default download directory.                                     | X       | X     | X     |
-| tmp            | A temporary directory for storing short-lived files.                       | X       | X     | X     |
-| executable     | A directory for storing executable files (Linux only).                     |         | X     |       |
-| audio          | A directory for storing audio files.                                       | X       | X     | X     |
-| desktop        | The user's desktop directory.                                              | X       | X     | X     |
-| document       | The user's documents directory.                                            | X       | X     | X     |
-| font           | A directory for storing font files.                                        | X       | X     | X     |
-| picture        | A directory for storing picture files.                                     | X       | X     | X     |
-| public         | A directory for storing shared data accessible to all users (Linux/macOS). |         | X     | X     |
-| template       | A directory for storing user template files.                               | X       | X     |       |
-| video          | A directory for storing video files.                                       | X       | X     | X     |
+| Directory Type | Description                                                            | Win Env | Win SpecialFolder | Linux | macOS |
+| -------------- | ---------------------------------------------------------------------- | ------- | ------- | ----- | ----- |
+| home           | The user's home directory.                                             | X       | X       | X     | X     |
+| cache          | A directory for storing application-specific cache data.               | X       | X       | X     | X     |
+| config         | A directory for storing application configuration data.                | X       | X       | X     | X     |
+| data           | A directory for storing application-specific data (non-cache).         | X       | X       | X     | X     |
+| data_local     | A directory for storing application-specific local (non-roaming) data. | X       | X       | X     | X     |
+| download       | The user's default download directory.                                 |         | X       | X     | X     |
+| tmp            | A temporary directory for storing short-lived files.                   | X       |         | X     | X     |
+| executable     | A directory for storing executable files (Linux only).                 |         |         | X     |       |
+| audio          | A directory for storing audio files.                                   |         | X       | X     | X     |
+| desktop        | The user's desktop directory.                                          |         | X       | X     | X     |
+| document       | The user's documents directory.                                        |         | X       | X     | X     |
+| font           | A directory for storing font files.                                    |         | X       | X     | X     |
+| picture        | A directory for storing picture files.                                 |         | X       | X     | X     |
+| public         | A directory for storing shared data accessible to all users.           |         |         | X     | X     |
+| template       | A directory for storing user template files.                           |         | X       | X     |       |
+| video          | A directory for storing video files.                                   |         | X       | X     | X     |
 
 > **Note** For some Windows directories where simple environmental variables is not enough `dir`uses powershell to
-> retrieve the path.
+> retrieve the path if invoked with true as second function argument. `dir("type", true)`
 
 ## Issues
 

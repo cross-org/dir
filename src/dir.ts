@@ -10,7 +10,7 @@ export { DirectoryTypes } from "./config.ts";
  * @param {string} type - The type of directory to retrieve as a string.
  * @returns {Promise<string>} A promise that resolves to the full path of the directory.
  */
-export async function dir(type: keyof typeof DirectoryTypes): Promise<string>;
+export async function dir(type: keyof typeof DirectoryTypes, parseWindowsSpecialDirectories?: boolean): Promise<string>;
 
 /**
  * Retrieves the path to a standard user directory based on the provided type and the current operating system.
@@ -18,7 +18,7 @@ export async function dir(type: keyof typeof DirectoryTypes): Promise<string>;
  * @param {DirectoryTypes} type - The type of directory to retrieve.
  * @returns {Promise<string>} A promise that resolves to the full path of the directory.
  */
-export async function dir(type: DirectoryTypes): Promise<string>;
+export async function dir(type: DirectoryTypes, parseWindowsSpecialDirectories?: boolean): Promise<string>;
 
 /**
  * Retrieves the path to a standard user directory based on the provided type and the current operating system.
@@ -28,7 +28,7 @@ export async function dir(type: DirectoryTypes): Promise<string>;
  * @throws {Error} If the directory type is not supported on the current platform.
  * @throws {Error} If no suitable environment variable is found for the requested directory.
  */
-export async function dir(type: string): Promise<string> {
+export async function dir(type: string, parseWindowsSpecialDirectories?: boolean): Promise<string> {
     const platform = getCurrentOS();
     const dirType = typeof type === "string" ? DirectoryTypes[type.toLowerCase() as keyof typeof DirectoryTypes] : type;
     const configs = directoryConfig[dirType] && directoryConfig[dirType][platform as keyof DirectoryPathConfig];
@@ -37,15 +37,21 @@ export async function dir(type: string): Promise<string> {
         throw new Error(`Directory type ${dirType ?? type} not supported on this platform (${platform})`);
     }
 
+    let gotWindowsConfigItem: boolean = false;
+    let baseEnv: string | undefined;
+
     for (const config of configs) {
-        let baseEnv;
         if (platform === "windows" && isWindowsConfigItem(config)) {
-            const ps = await spawn([
-                "powershell",
-                "-Command",
-                `[Environment]::GetFolderPath('${config.key}')`,
-            ]);
-            baseEnv = ps.stdout.trim();
+            if(parseWindowsSpecialDirectories) {
+                const ps = await spawn([
+                    "powershell",
+                    "-Command",
+                    `[Environment]::GetFolderPath('${config.key}')`,
+                ]);
+                baseEnv = ps.stdout.trim();
+            } else {
+                gotWindowsConfigItem = true;
+            }
         } else {
             baseEnv = getEnv(config.key);
         }
@@ -58,5 +64,9 @@ export async function dir(type: string): Promise<string> {
         }
     }
 
-    throw new Error(`No environment variable set for ${dirType} on ${platform}`);
+    if(gotWindowsConfigItem) {
+        throw new Error(`No environment variable set for ${dirType} on ${platform}, run dir() with parseWindowsSpecialDirectories parameter set to true to parse windows special directories.`);
+    } else {
+        throw new Error(`No environment variable set for ${dirType} on ${platform}`);
+    }
 }
