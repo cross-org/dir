@@ -4,8 +4,13 @@
     "exports": "./mod.ts",
 
     "tasks": {
-        "check-deps": "deno run -A jsr:@check/deps",
+        "check": "deno fmt --check && deno lint && deno check mod.ts && deno task test && deno task check-deps --slim",
+        "check-deps": "deno run -A jsr:@check/deps --ignore-unused",
+        "test": "echo \"No tests yet\"",
         "publish-dry": "deno publish --dry-run"
+    },
+    "publish": {
+        "exclude": [".github", "*.test.ts"]
     },
     "lock": true,
     "fmt": {
@@ -16,6 +21,6 @@
         "@cross/deepmerge": "jsr:@cross/deepmerge@^1.0.0",
         "@cross/env": "jsr:@cross/env@^1.0.0",
         "@cross/runtime": "jsr:@cross/runtime@^1.0.0",
-        "@cross/utils": "jsr:@cross/utils@^0.7.0"
+        "@cross/utils": "jsr:@cross/utils@^0.8.2"
     }
 }

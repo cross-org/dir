@@ -9,7 +9,8 @@ This library provides a simple, cross-platform mechanism for retrieving the path
 Bun and Node.js. It's designed for flexibility and ease of use, ensuring your applications can locate critical
 directories regardless of the operating system or runtime environment.
 
-Part of the @cross suite - check out our growing collection of cross-runtime tools at [github.com/cross-org](https://github.com/cross-org).
+Part of the @cross suite - check out our growing collection of cross-runtime tools at
+[github.com/cross-org](https://github.com/cross-org).
 
 **Features**
 
