@@ -82,7 +82,7 @@ const userHome = await dir("home", true);
 | document       | The user's documents directory.                                        |         | X                 | X     | X     |
 | font           | A directory for storing font files.                                    |         | X                 | X     | X     |
 | picture        | A directory for storing picture files.                                 |         | X                 | X     | X     |
-| public         | A directory for storing shared data accessible to all users.           |         |                   | X     | X     |
+| public         | A directory for storing shared data accessible to all users.           | X       |                   | X     | X     |
 | template       | A directory for storing user template files.                           |         | X                 | X     |       |
 | video          | A directory for storing video files.                                   |         | X                 | X     | X     |
 

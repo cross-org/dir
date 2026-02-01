@@ -150,6 +150,7 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
         macos: [{ key: "HOME", extraFolder: "/Pictures" }],
     },
     [DirectoryTypes.public]: {
+        windows: [{ key: "PUBLIC" }],
         linux: [{ key: "XDG_PUBLICSHARE_DIR" }],
         macos: [{ key: "HOME", extraFolder: "/Public" }],
     },
