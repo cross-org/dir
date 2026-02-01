@@ -1,7 +1,7 @@
 import { getEnv } from "@cross/env";
 import { getCurrentOS } from "@cross/runtime";
 import { spawn } from "@cross/utils";
-import { directoryConfig, DirectoryPathConfig, DirectoryTypes, isWindowsConfigItem } from "./config.ts";
+import { directoryConfig, type DirectoryPathConfig, DirectoryTypes, isWindowsConfigItem } from "./config.ts";
 export { DirectoryTypes } from "./config.ts";
 
 /**
