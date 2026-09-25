@@ -101,7 +101,7 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
         macos: [{ key: "HOME", extraFolder: "/Library/Caches" }],
     },
     [DirectoryTypes.config]: {
-        windows: [{ key: "APPDATA" }, { key: "LocalApplicationData", winSpecialFolder: true }],
+        windows: [{ key: "APPDATA" }, { key: "ApplicationData", winSpecialFolder: true }],
         linux: [
             { key: "XDG_CONFIG_HOME" },
             { key: "HOME", extraFolder: "/.config" },
@@ -185,7 +185,7 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
         linux: [{ key: "XDG_TEMPLATES_DIR", userDirs: true }],
     },
     [DirectoryTypes.tmp]: {
-        windows: [{ key: "TMP" }],
+        windows: [{ key: "TMP" }, { key: "TEMP" }],
         linux: [{ key: "TMPDIR", defaultDir: "/tmp" }],
         macos: [{ key: "TMPDIR" }],
     },
