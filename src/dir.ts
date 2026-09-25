@@ -1,6 +1,7 @@
 import { getEnv } from "@cross/env";
 import { getCurrentOS } from "@cross/runtime";
 import { spawn } from "@cross/utils";
+import { normalize, parse } from "node:path";
 import {
     directoryConfig,
     type DirectoryPathConfig,
@@ -12,6 +13,31 @@ import { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
 import { getUserDir } from "./userdirs.ts";
 export { DirectoryTypes } from "./config.ts";
 export { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
+
+/**
+ * Builds the PowerShell command used to resolve a Windows folder.
+ *
+ * @param {string} key - The `Environment.SpecialFolder` name, or the shell folder name when `shellFolder` is true.
+ * @param {boolean} shellFolder - Resolve `key` as a shell folder (`shell:<key>`) instead of a SpecialFolder.
+ * @returns {string} The PowerShell command.
+ */
+export function windowsFolderCommand(key: string, shellFolder: boolean): string {
+    return shellFolder
+        ? `(New-Object -ComObject Shell.Application).NameSpace('shell:${key}').Self.Path`
+        : `[Environment]::GetFolderPath('${key}')`;
+}
+
+/**
+ * Normalizes a path for the current platform, resolving `.` and `..` segments and removing trailing separators.
+ *
+ * @param {string} path - The path to tidy.
+ * @returns {string} The tidied path.
+ */
+function tidyPath(path: string): string {
+    const normalized = normalize(path);
+    const { root } = parse(normalized);
+    return normalized.length > root.length ? normalized.replace(/[\\/]+$/, "") : normalized;
+}
 
 /**
  * Options for `dir()`.
@@ -68,9 +94,7 @@ export async function dir(type: string, options?: DirOptions | boolean): Promise
     for (const config of configs) {
         if (platform === "windows" && isWindowsConfigItem(config)) {
             if (windowsSpecialFolders) {
-                const command = config.winShellFolder
-                    ? `(New-Object -ComObject Shell.Application).NameSpace('shell:${config.key}').Self.Path`
-                    : `[Environment]::GetFolderPath('${config.key}')`;
+                const command = windowsFolderCommand(config.key, config.winShellFolder === true);
                 const ps = await spawn(["powershell", "-Command", command]);
                 baseEnv = ps.stdout.trim();
             } else {
@@ -85,9 +109,9 @@ export async function dir(type: string, options?: DirOptions | boolean): Promise
 
         if (baseEnv) {
             const fullPath = config.extraFolder ? `${baseEnv}${config.extraFolder}` : baseEnv;
-            return fullPath;
+            return tidyPath(fullPath);
         } else if (config.defaultDir) {
-            return config.defaultDir;
+            return tidyPath(config.defaultDir);
         }
     }
 

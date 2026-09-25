@@ -1,10 +1,11 @@
 import { test } from "@cross/test";
 import { assertEquals, assertRejects } from "@std/assert";
 import { getCurrentOS } from "@cross/runtime";
+import { spawn } from "@cross/utils";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import process from "node:process";
-import { dir, DirectoryNotFoundError, DirectoryTypes, UnsupportedDirectoryError } from "./dir.ts";
+import { dir, DirectoryNotFoundError, DirectoryTypes, UnsupportedDirectoryError, windowsFolderCommand } from "./dir.ts";
 import { directoryConfig } from "./config.ts";
 
 const platform = getCurrentOS();
@@ -79,6 +80,12 @@ test("dir resolves every directory type to an absolute path or a known error", a
         }
         assertEquals(absolutePath.test(path), true, `${type} resolved to a non-absolute path: ${path}`);
         assertEquals(path.includes("$"), false, `${type} contains an unexpanded variable: ${path}`);
+        assertEquals(/(^|[\\/])\.\.?([\\/]|$)/.test(path), false, `${type} contains . or .. segments: ${path}`);
+        assertEquals(
+            /.[\\/]$/.test(path) && !/^[A-Za-z]:\\$/.test(path),
+            false,
+            `${type} has a trailing separator: ${path}`,
+        );
         results.push(`${type.padEnd(12)} ${path}`);
     }
 
@@ -97,6 +104,16 @@ test("dir throws for unknown directory types", async () => {
 });
 
 if (isLinux) {
+    test("linux: returned paths are normalized", async () => {
+        await withEnv(
+            { TMPDIR: "/tmp//cross-dir/./test/", XDG_BIN_HOME: undefined, XDG_DATA_HOME: "/data/share" },
+            async () => {
+                assertEquals(await dir("tmp"), "/tmp/cross-dir/test");
+                assertEquals(await dir("executable"), "/data/bin");
+            },
+        );
+    });
+
     test("linux: user dirs are read from user-dirs.dirs", async () => {
         const content = `XDG_DOWNLOAD_DIR="$HOME/Downloads"\nXDG_PROJECTS_DIR="$HOME/Projects"\n`;
         await withUserDirs(
@@ -167,3 +184,14 @@ test("winShellFolder is only used together with winSpecialFolder", () => {
         }
     }
 });
+
+if (isWindows) {
+    test("windows: shell:Downloads lookup returns an absolute path", async () => {
+        // Runs the shell folder lookup directly, since dir() falls back to %USERPROFILE%\Downloads when it fails.
+        const ps = await spawn(["powershell", "-Command", windowsFolderCommand("Downloads", true)]);
+        const path = ps.stdout.trim();
+        console.log(`shell:Downloads resolved to: ${path}`);
+        assertEquals(/^[A-Za-z]:\\/.test(path), true, `unexpected shell:Downloads result: "${path}"`);
+        assertEquals(await dir("download", { windowsSpecialFolders: true }), path);
+    });
+}
