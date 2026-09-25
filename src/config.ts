@@ -170,7 +170,10 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
         macos: [{ key: "HOME", extraFolder: "/Documents" }],
     },
     [DirectoryTypes.download]: {
-        windows: [{ key: "UserProfile", winSpecialFolder: true, extraFolder: "\\Downloads" }],
+        windows: [
+            { key: "Downloads", winSpecialFolder: true, winShellFolder: true },
+            { key: "UserProfile", winSpecialFolder: true, extraFolder: "\\Downloads" },
+        ],
         linux: [{ key: "XDG_DOWNLOAD_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Downloads" }],
     },
@@ -217,12 +220,15 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
  * @property {string} [extraFolder] - Optional subfolder to append
  * @property {string} [defaultDir] - Optional default directory if "key" is undefined
  * @property {boolean} [winSpecialFolder] - Indicates if a Windows special folder
+ * @property {boolean} [winShellFolder] - Resolve "key" as a shell folder (`shell:<key>`) instead of an
+ *   `Environment.SpecialFolder`. Used for known folders that have no SpecialFolder, like Downloads.
  */
 type WindowsDirectoryPathConfigItem = {
     key: string;
     extraFolder?: string;
     defaultDir?: string;
     winSpecialFolder?: boolean;
+    winShellFolder?: boolean;
 };
 
 /**

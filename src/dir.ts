@@ -68,11 +68,10 @@ export async function dir(type: string, options?: DirOptions | boolean): Promise
     for (const config of configs) {
         if (platform === "windows" && isWindowsConfigItem(config)) {
             if (windowsSpecialFolders) {
-                const ps = await spawn([
-                    "powershell",
-                    "-Command",
-                    `[Environment]::GetFolderPath('${config.key}')`,
-                ]);
+                const command = config.winShellFolder
+                    ? `(New-Object -ComObject Shell.Application).NameSpace('shell:${config.key}').Self.Path`
+                    : `[Environment]::GetFolderPath('${config.key}')`;
+                const ps = await spawn(["powershell", "-Command", command]);
                 baseEnv = ps.stdout.trim();
             } else {
                 gotWindowsConfigItem = true;

@@ -146,3 +146,13 @@ test("preference matches config on all platforms except macOS", () => {
     assertEquals(preference.linux, config.linux);
     assertEquals(preference.windows, config.windows);
 });
+
+test("winShellFolder is only used together with winSpecialFolder", () => {
+    for (const [type, config] of Object.entries(directoryConfig)) {
+        for (const item of config.windows ?? []) {
+            if (item.winShellFolder) {
+                assertEquals(item.winSpecialFolder, true, `${type} uses winShellFolder without winSpecialFolder`);
+            }
+        }
+    }
+});
