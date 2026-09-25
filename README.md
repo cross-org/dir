@@ -56,14 +56,21 @@ const userHome = await dir(DirectoryTypes.home);
 
 **Error handling**
 
-`dir()` throws if the directory type is not supported on the current platform, or if the directory could not be resolved
-(e.g. the environment variable is unset and there is no fallback).
+`dir()` throws an `UnsupportedDirectoryError` if the directory type is not supported on the current platform, or a
+`DirectoryNotFoundError` if the directory could not be resolved (e.g. the environment variable is unset and there is no
+fallback). Both extend `Error` and expose `type` and `platform` properties.
 
 ```javascript
+import { dir, DirectoryNotFoundError, UnsupportedDirectoryError } from "@cross/dir";
+
 try {
     const projects = await dir("projects");
 } catch (error) {
-    console.error(error.message);
+    if (error instanceof UnsupportedDirectoryError) {
+        // Unknown type, or not available on this platform (error.type, error.platform)
+    } else if (error instanceof DirectoryNotFoundError) {
+        // Supported, but could not be resolved on this system
+    }
 }
 ```
 

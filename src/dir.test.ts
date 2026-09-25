@@ -4,7 +4,7 @@ import { getCurrentOS } from "@cross/runtime";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import process from "node:process";
-import { dir, DirectoryTypes } from "./dir.ts";
+import { dir, DirectoryNotFoundError, DirectoryTypes, UnsupportedDirectoryError } from "./dir.ts";
 import { directoryConfig } from "./config.ts";
 
 const platform = getCurrentOS();
@@ -71,9 +71,8 @@ test("dir resolves every directory type to an absolute path or a known error", a
         try {
             path = await dir(type, isWindows);
         } catch (error) {
-            const message = (error as Error).message;
-            const known = message.includes("not supported") || message.includes("No environment variable");
-            assertEquals(known, true, `${type} threw an unexpected error: ${message}`);
+            const known = error instanceof UnsupportedDirectoryError || error instanceof DirectoryNotFoundError;
+            assertEquals(known, true, `${type} threw an unexpected error: ${error}`);
             continue;
         }
         assertEquals(absolutePath.test(path), true, `${type} resolved to a non-absolute path: ${path}`);
@@ -83,7 +82,7 @@ test("dir resolves every directory type to an absolute path or a known error", a
 
 test("dir throws for unknown directory types", async () => {
     // deno-lint-ignore no-explicit-any
-    await assertRejects(() => dir("nonexistent" as any), Error, "not supported");
+    await assertRejects(() => dir("nonexistent" as any), UnsupportedDirectoryError);
 });
 
 if (isLinux) {
@@ -111,7 +110,7 @@ if (isLinux) {
 
     test("linux: disabled user dir throws", async () => {
         await withUserDirs(`XDG_DESKTOP_DIR="$HOME/"`, { HOME: "/home/user", XDG_DESKTOP_DIR: undefined }, async () => {
-            await assertRejects(() => dir("desktop"), Error);
+            await assertRejects(() => dir("desktop"), DirectoryNotFoundError);
         });
     });
 
@@ -119,8 +118,18 @@ if (isLinux) {
         await withEnv(
             { HOME: "/home/user", XDG_CONFIG_HOME: "/nonexistent/cross-dir-test", XDG_MUSIC_DIR: undefined },
             async () => {
-                await assertRejects(() => dir("audio"), Error);
+                await assertRejects(() => dir("audio"), DirectoryNotFoundError);
             },
         );
     });
 }
+
+test("errors expose type and platform and keep their messages", async () => {
+    // deno-lint-ignore no-explicit-any
+    const error = await assertRejects(() => dir("nonexistent" as any), UnsupportedDirectoryError);
+    assertEquals(error.name, "UnsupportedDirectoryError");
+    assertEquals(error.type, "nonexistent");
+    assertEquals(error.platform, platform);
+    assertEquals(error.message, `Directory type nonexistent not supported on this platform (${platform})`);
+    assertEquals(error instanceof Error, true);
+});

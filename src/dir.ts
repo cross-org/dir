@@ -8,8 +8,10 @@ import {
     isUserDirsConfigItem,
     isWindowsConfigItem,
 } from "./config.ts";
+import { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
 import { getUserDir } from "./userdirs.ts";
 export { DirectoryTypes } from "./config.ts";
+export { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
 
 /**
  * Retrieves the path to a standard user directory based on the provided string and the current operating system.
@@ -35,8 +37,8 @@ export async function dir(type: DirectoryTypes, parseWindowsSpecialDirectories?:
  * @param {DirectoryTypes} type - The type of directory to retrieve (e.g., 'home', 'cache', 'config').
  * @param {boolean} parseWindowsSpecialDirectories - Optional boolean to resolve Windows special folders with Powershell.
  * @returns {Promise<string>} A promise that resolves to the full path of the directory.
- * @throws {Error} If the directory type is not supported on the current platform.
- * @throws {Error} If no suitable environment variable is found for the requested directory.
+ * @throws {UnsupportedDirectoryError} If the directory type is unknown or not supported on the current platform.
+ * @throws {DirectoryNotFoundError} If the directory path could not be resolved.
  */
 export async function dir(type: string, parseWindowsSpecialDirectories?: boolean): Promise<string> {
     const platform = getCurrentOS();
@@ -44,7 +46,7 @@ export async function dir(type: string, parseWindowsSpecialDirectories?: boolean
     const configs = directoryConfig[dirType] && directoryConfig[dirType][platform as keyof DirectoryPathConfig];
 
     if (!configs) {
-        throw new Error(`Directory type ${dirType ?? type} not supported on this platform (${platform})`);
+        throw new UnsupportedDirectoryError(dirType ?? type, platform);
     }
 
     let gotWindowsConfigItem: boolean = false;
@@ -78,10 +80,12 @@ export async function dir(type: string, parseWindowsSpecialDirectories?: boolean
     }
 
     if (gotWindowsConfigItem) {
-        throw new Error(
+        throw new DirectoryNotFoundError(
+            dirType,
+            platform,
             `No environment variable set for ${dirType} on ${platform}, run dir() with parseWindowsSpecialDirectories parameter set to true to parse windows special directories.`,
         );
     } else {
-        throw new Error(`No environment variable set for ${dirType} on ${platform}`);
+        throw new DirectoryNotFoundError(dirType, platform);
     }
 }
