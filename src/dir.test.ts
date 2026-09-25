@@ -65,6 +65,7 @@ test("userDirs is only used with XDG_*_DIR keys on linux", () => {
 
 test("dir resolves every directory type to an absolute path or a known error", async () => {
     const absolutePath = isWindows ? /^([A-Za-z]:[\\/]|\\\\)/ : /^\//;
+    const results: string[] = [];
 
     for (const type of Object.values(DirectoryTypes)) {
         let path: string;
@@ -73,11 +74,21 @@ test("dir resolves every directory type to an absolute path or a known error", a
         } catch (error) {
             const known = error instanceof UnsupportedDirectoryError || error instanceof DirectoryNotFoundError;
             assertEquals(known, true, `${type} threw an unexpected error: ${error}`);
+            results.push(`${type.padEnd(12)} ${(error as Error).name}`);
             continue;
         }
         assertEquals(absolutePath.test(path), true, `${type} resolved to a non-absolute path: ${path}`);
         assertEquals(path.includes("$"), false, `${type} contains an unexpanded variable: ${path}`);
+        results.push(`${type.padEnd(12)} ${path}`);
     }
+
+    // Logged so CI output shows what each platform actually resolved.
+    console.log(`\nResolved directories on ${platform}:\n${results.join("\n")}`);
+});
+
+test("dir always resolves home", async () => {
+    const home = await dir("home", { windowsSpecialFolders: isWindows });
+    assertEquals(home.length > 0, true);
 });
 
 test("dir throws for unknown directory types", async () => {
