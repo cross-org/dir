@@ -7,6 +7,11 @@ export class UnsupportedDirectoryError extends Error {
     /** The current platform. */
     readonly platform: string;
 
+    /**
+     * Creates a new UnsupportedDirectoryError.
+     * @param {string} type - The requested directory type.
+     * @param {string} platform - The current platform.
+     */
     constructor(type: string, platform: string) {
         super(`Directory type ${type} not supported on this platform (${platform})`);
         this.name = "UnsupportedDirectoryError";
@@ -25,6 +30,12 @@ export class DirectoryNotFoundError extends Error {
     /** The current platform. */
     readonly platform: string;
 
+    /**
+     * Creates a new DirectoryNotFoundError.
+     * @param {string} type - The requested directory type.
+     * @param {string} platform - The current platform.
+     * @param {string} [message] - Optional message, defaults to a generic "not set" message.
+     */
     constructor(type: string, platform: string, message?: string) {
         super(message ?? `No environment variable set for ${type} on ${platform}`);
         this.name = "DirectoryNotFoundError";

@@ -9,4 +9,22 @@ jobs:
         uses: cross-org/workflows/.github/workflows/deno-ci.yml@main
         with:
             entrypoint: mod.ts
-            run_tests: false
+
+    # deno_ci only runs on Linux, this covers the Windows and macOS code paths.
+    platform_tests:
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: Setup repo
+              uses: actions/checkout@v4
+
+            - name: Setup Deno
+              uses: denoland/setup-deno@v2
+              with:
+                  deno-version: 2.x
+
+            - name: Run tests
+              run: deno test -A
