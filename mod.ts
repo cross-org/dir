@@ -1,1 +1,1 @@
-export { dir, DirectoryNotFoundError, DirectoryTypes, UnsupportedDirectoryError } from "./src/dir.ts";
+export { dir, DirectoryNotFoundError, DirectoryTypes, type DirOptions, UnsupportedDirectoryError } from "./src/dir.ts";

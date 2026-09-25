@@ -69,7 +69,7 @@ test("dir resolves every directory type to an absolute path or a known error", a
     for (const type of Object.values(DirectoryTypes)) {
         let path: string;
         try {
-            path = await dir(type, isWindows);
+            path = await dir(type, { windowsSpecialFolders: isWindows });
         } catch (error) {
             const known = error instanceof UnsupportedDirectoryError || error instanceof DirectoryNotFoundError;
             assertEquals(known, true, `${type} threw an unexpected error: ${error}`);
@@ -132,4 +132,11 @@ test("errors expose type and platform and keep their messages", async () => {
     assertEquals(error.platform, platform);
     assertEquals(error.message, `Directory type nonexistent not supported on this platform (${platform})`);
     assertEquals(error instanceof Error, true);
+});
+
+test("dir accepts an options object and the deprecated boolean", async () => {
+    const expected = await dir("home");
+    assertEquals(await dir("home", {}), expected);
+    assertEquals(await dir("home", { windowsSpecialFolders: false }), expected);
+    assertEquals(await dir("home", false), expected);
 });

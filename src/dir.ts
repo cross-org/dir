@@ -14,33 +14,46 @@ export { DirectoryTypes } from "./config.ts";
 export { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
 
 /**
- * Retrieves the path to a standard user directory based on the provided string and the current operating system.
- *
- * @param {string} type - The type of directory to retrieve as a string.
- * @param {boolean} parseWindowsSpecialDirectories - Optional boolean to resolve Windows special folders with Powershell.
- * @returns {Promise<string>} A promise that resolves to the full path of the directory.
+ * Options for `dir()`.
  */
-export async function dir(type: keyof typeof DirectoryTypes, parseWindowsSpecialDirectories?: boolean): Promise<string>;
-
-/**
- * Retrieves the path to a standard user directory based on the provided type and the current operating system.
- *
- * @param {DirectoryTypes} type - The type of directory to retrieve.
- * @param {boolean} parseWindowsSpecialDirectories - Optional boolean to resolve Windows special folders with Powershell.
- * @returns {Promise<string>} A promise that resolves to the full path of the directory.
- */
-export async function dir(type: DirectoryTypes, parseWindowsSpecialDirectories?: boolean): Promise<string>;
+export interface DirOptions {
+    /**
+     * Resolve Windows special folders with PowerShell when no environment variable is available for the directory.
+     * Ignored on other platforms. Defaults to false.
+     */
+    windowsSpecialFolders?: boolean;
+}
 
 /**
  * Retrieves the path to a standard user directory based on the provided type and the current operating system.
  *
  * @param {DirectoryTypes} type - The type of directory to retrieve (e.g., 'home', 'cache', 'config').
- * @param {boolean} parseWindowsSpecialDirectories - Optional boolean to resolve Windows special folders with Powershell.
+ * @param {DirOptions} [options] - Optional options.
  * @returns {Promise<string>} A promise that resolves to the full path of the directory.
  * @throws {UnsupportedDirectoryError} If the directory type is unknown or not supported on the current platform.
  * @throws {DirectoryNotFoundError} If the directory path could not be resolved.
  */
-export async function dir(type: string, parseWindowsSpecialDirectories?: boolean): Promise<string> {
+export async function dir(type: keyof typeof DirectoryTypes | DirectoryTypes, options?: DirOptions): Promise<string>;
+
+/**
+ * Retrieves the path to a standard user directory based on the provided type and the current operating system.
+ *
+ * @deprecated Pass an options object instead: `dir(type, { windowsSpecialFolders: true })`.
+ * @param {DirectoryTypes} type - The type of directory to retrieve (e.g., 'home', 'cache', 'config').
+ * @param {boolean} [parseWindowsSpecialDirectories] - Resolve Windows special folders with PowerShell.
+ * @returns {Promise<string>} A promise that resolves to the full path of the directory.
+ * @throws {UnsupportedDirectoryError} If the directory type is unknown or not supported on the current platform.
+ * @throws {DirectoryNotFoundError} If the directory path could not be resolved.
+ */
+export async function dir(
+    type: keyof typeof DirectoryTypes | DirectoryTypes,
+    parseWindowsSpecialDirectories?: boolean,
+): Promise<string>;
+
+export async function dir(type: string, options?: DirOptions | boolean): Promise<string> {
+    const { windowsSpecialFolders = false } = typeof options === "boolean"
+        ? { windowsSpecialFolders: options }
+        : options ?? {};
     const platform = getCurrentOS();
     const dirType = typeof type === "string" ? DirectoryTypes[type.toLowerCase() as keyof typeof DirectoryTypes] : type;
     const configs = directoryConfig[dirType] && directoryConfig[dirType][platform as keyof DirectoryPathConfig];
@@ -54,7 +67,7 @@ export async function dir(type: string, parseWindowsSpecialDirectories?: boolean
 
     for (const config of configs) {
         if (platform === "windows" && isWindowsConfigItem(config)) {
-            if (parseWindowsSpecialDirectories) {
+            if (windowsSpecialFolders) {
                 const ps = await spawn([
                     "powershell",
                     "-Command",
@@ -83,7 +96,7 @@ export async function dir(type: string, parseWindowsSpecialDirectories?: boolean
         throw new DirectoryNotFoundError(
             dirType,
             platform,
-            `No environment variable set for ${dirType} on ${platform}, run dir() with parseWindowsSpecialDirectories parameter set to true to parse windows special directories.`,
+            `No environment variable set for ${dirType} on ${platform}, run dir() with the windowsSpecialFolders option set to true to parse windows special directories.`,
         );
     } else {
         throw new DirectoryNotFoundError(dirType, platform);

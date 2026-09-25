@@ -76,14 +76,17 @@ try {
 
 **Note concerning Windows special folders**
 
-If no environment variable is configured for the directory or if it returns empty the program can try to parse the
+If no environment variable is configured for the directory or if it returns empty, `dir()` can resolve the
 [special folders](https://learn.microsoft.com/en-us/dotnet/api/system.environment.specialfolder?view=net-8.0) found on
-windows systems if you supply a true argument for the second parameter of `dir()`, the optional
-parseWindowsSpecialDirectories parameter. Powershell will be used to resolve the directory path.
+Windows systems when the `windowsSpecialFolders` option is set. PowerShell will be used to resolve the directory path.
+The option is ignored on other platforms.
 
 ```javascript
-const userHome = await dir("home", true);
+const downloads = await dir("download", { windowsSpecialFolders: true });
 ```
+
+> **Deprecated** Passing a boolean as the second argument, `dir("download", true)`, still works but is deprecated in
+> favor of the options object and will be removed in 2.0.
 
 **Note concerning Linux user directories**
 
@@ -115,8 +118,8 @@ variables (`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
 | template       | A directory for storing user template files.                           |         | X                 | X     |       |
 | video          | A directory for storing video files.                                   |         | X                 | X     | X     |
 
-> **Note** For some Windows directories where simple environment variables are not enough, `dir` uses PowerShell to
-> retrieve the path if invoked with true as the second function argument. `dir("type", true)`
+> **Note** Directories marked only under "Win SpecialFolder" require the `windowsSpecialFolders` option on Windows.
+> `dir("type", { windowsSpecialFolders: true })`
 
 ## Development
 
