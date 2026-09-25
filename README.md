@@ -102,6 +102,7 @@ variables (`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
 | home           | The user's home directory.                                             | X       | X                 | X     | X     |
 | cache          | A directory for storing application-specific cache data.               | X       | X                 | X     | X     |
 | config         | A directory for storing application configuration data.                | X       | X                 | X     | X     |
+| preference     | A directory for storing application preferences (see note below).      | X       | X                 | X     | X     |
 | data           | A directory for storing application-specific data (non-cache).         | X       | X                 | X     | X     |
 | data_local     | A directory for storing application-specific local (non-roaming) data. | X       | X                 | X     | X     |
 | state          | A directory for storing persistent application state (logs, history).  | X       | X                 | X     | X     |
@@ -120,6 +121,11 @@ variables (`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
 
 > **Note** Directories marked only under "Win SpecialFolder" require the `windowsSpecialFolders` option on Windows.
 > `dir("type", { windowsSpecialFolders: true })`
+
+> **Note** On macOS, `config` currently resolves to `~/Library/Preferences`, which Apple reserves for system-managed
+> `.plist` files. In 2.0, `config` will move to `~/Library/Application Support`. `preference` resolves to the same path
+> as `config` on all platforms except macOS, where it stays `~/Library/Preferences`. If you rely on the current macOS
+> location, use `preference` instead.
 
 ## Development
 

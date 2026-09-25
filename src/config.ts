@@ -18,6 +18,13 @@ export enum DirectoryTypes {
     /**  A directory for storing application configuration data. */
     config = "config",
 
+    /**
+     * A directory for storing application preferences. Same as `config`, except on macOS where it is
+     * `~/Library/Preferences`. Use this to keep the current macOS `config` location, which is planned to move to
+     * `~/Library/Application Support` in 2.0.
+     */
+    preference = "preference",
+
     /**  A directory for storing application-specific data (non-cache). */
     data = "data",
 
@@ -101,6 +108,14 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
         macos: [{ key: "HOME", extraFolder: "/Library/Caches" }],
     },
     [DirectoryTypes.config]: {
+        windows: [{ key: "APPDATA" }, { key: "ApplicationData", winSpecialFolder: true }],
+        linux: [
+            { key: "XDG_CONFIG_HOME" },
+            { key: "HOME", extraFolder: "/.config" },
+        ],
+        macos: [{ key: "HOME", extraFolder: "/Library/Preferences" }],
+    },
+    [DirectoryTypes.preference]: {
         windows: [{ key: "APPDATA" }, { key: "ApplicationData", winSpecialFolder: true }],
         linux: [
             { key: "XDG_CONFIG_HOME" },

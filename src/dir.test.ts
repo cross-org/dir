@@ -140,3 +140,9 @@ test("dir accepts an options object and the deprecated boolean", async () => {
     assertEquals(await dir("home", { windowsSpecialFolders: false }), expected);
     assertEquals(await dir("home", false), expected);
 });
+
+test("preference matches config on all platforms except macOS", () => {
+    const { preference, config } = directoryConfig;
+    assertEquals(preference.linux, config.linux);
+    assertEquals(preference.windows, config.windows);
+});
