@@ -1,7 +1,14 @@
 import { getEnv } from "@cross/env";
 import { getCurrentOS } from "@cross/runtime";
 import { spawn } from "@cross/utils";
-import { directoryConfig, type DirectoryPathConfig, DirectoryTypes, isWindowsConfigItem } from "./config.ts";
+import {
+    directoryConfig,
+    type DirectoryPathConfig,
+    DirectoryTypes,
+    isUserDirsConfigItem,
+    isWindowsConfigItem,
+} from "./config.ts";
+import { getUserDir } from "./userdirs.ts";
 export { DirectoryTypes } from "./config.ts";
 
 /**
@@ -57,6 +64,9 @@ export async function dir(type: string, parseWindowsSpecialDirectories?: boolean
             }
         } else {
             baseEnv = getEnv(config.key);
+            if (!baseEnv && isUserDirsConfigItem(config)) {
+                baseEnv = await getUserDir(config.key);
+            }
         }
 
         if (baseEnv) {

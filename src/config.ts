@@ -68,6 +68,15 @@ export function isWindowsConfigItem(item: WindowsDirectoryPathConfigItem): item 
 }
 
 /**
+ * Checks if a configuration item should fall back to the xdg-user-dirs `user-dirs.dirs` file.
+ * @param {DirectoryPathConfigItem} item - The configuration item
+ * @returns {boolean} True if 'userDirs' property is true, otherwise false.
+ */
+export function isUserDirsConfigItem(item: DirectoryPathConfigItem): item is UnixDirectoryPathConfigItem {
+    return "userDirs" in item && item.userDirs === true;
+}
+
+/**
  * A mapping of standard directory types to their  cross-platform configuration objects.
  * Each key is a `DirectoryTypes`, and the value is a `DirectoryPathConfig` object.
  */
@@ -118,22 +127,22 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
     },
     [DirectoryTypes.audio]: {
         windows: [{ key: "MyMusic", winSpecialFolder: true }],
-        linux: [{ key: "XDG_MUSIC_DIR" }],
+        linux: [{ key: "XDG_MUSIC_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Music" }],
     },
     [DirectoryTypes.desktop]: {
         windows: [{ key: "DesktopDirectory", winSpecialFolder: true }],
-        linux: [{ key: "XDG_DESKTOP_DIR" }],
+        linux: [{ key: "XDG_DESKTOP_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Desktop" }],
     },
     [DirectoryTypes.document]: {
         windows: [{ key: "MyDocuments", winSpecialFolder: true }],
-        linux: [{ key: "XDG_DOCUMENTS_DIR" }],
+        linux: [{ key: "XDG_DOCUMENTS_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Documents" }],
     },
     [DirectoryTypes.download]: {
         windows: [{ key: "UserProfile", winSpecialFolder: true, extraFolder: "\\Downloads" }],
-        linux: [{ key: "XDG_DOWNLOAD_DIR" }],
+        linux: [{ key: "XDG_DOWNLOAD_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Downloads" }],
     },
     [DirectoryTypes.font]: {
@@ -146,17 +155,17 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
     },
     [DirectoryTypes.picture]: {
         windows: [{ key: "MyPictures", winSpecialFolder: true }],
-        linux: [{ key: "XDG_PICTURES_DIR" }],
+        linux: [{ key: "XDG_PICTURES_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Pictures" }],
     },
     [DirectoryTypes.public]: {
         windows: [{ key: "PUBLIC" }],
-        linux: [{ key: "XDG_PUBLICSHARE_DIR" }],
+        linux: [{ key: "XDG_PUBLICSHARE_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Public" }],
     },
     [DirectoryTypes.template]: {
         windows: [{ key: "Templates", winSpecialFolder: true }],
-        linux: [{ key: "XDG_TEMPLATES_DIR" }],
+        linux: [{ key: "XDG_TEMPLATES_DIR", userDirs: true }],
     },
     [DirectoryTypes.tmp]: {
         windows: [{ key: "TMP" }],
@@ -165,7 +174,7 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
     },
     [DirectoryTypes.video]: {
         windows: [{ key: "MyVideos", winSpecialFolder: true }],
-        linux: [{ key: "XDG_VIDEOS_DIR" }],
+        linux: [{ key: "XDG_VIDEOS_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Movies" }],
     },
 };
@@ -189,12 +198,19 @@ type WindowsDirectoryPathConfigItem = {
  * @property {string} key -  Environment variable name
  * @property {string} [extraFolder] - Optional subfolder to append
  * @property {string} [defaultDir] - Optional default directory if "key" is undefined
+ * @property {boolean} [userDirs] - Fall back to looking up "key" in the xdg-user-dirs `user-dirs.dirs` file (Linux)
  */
 type UnixDirectoryPathConfigItem = {
     key: string;
     extraFolder?: string;
     defaultDir?: string;
+    userDirs?: boolean;
 };
+
+/**
+ * Any configuration item, regardless of platform.
+ */
+type DirectoryPathConfigItem = WindowsDirectoryPathConfigItem | UnixDirectoryPathConfigItem;
 
 /**
  * Represents the configuration for resolving a directory path across operating systems.

@@ -65,6 +65,13 @@ parseWindowsSpecialDirectories parameter. Powershell will be used to resolve the
 const userHome = await dir("home", true);
 ```
 
+**Note concerning Linux user directories**
+
+User directories such as `download`, `document`, `audio`, `desktop` etc. are first looked up as environment variables
+(`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
+[xdg-user-dirs](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/) file `$XDG_CONFIG_HOME/user-dirs.dirs`
+(default `~/.config/user-dirs.dirs`). Entries set to the home directory itself are considered disabled and will throw.
+
 ## Supported directories
 
 | Directory Type | Description                                                            | Win Env | Win SpecialFolder | Linux | macOS |
