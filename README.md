@@ -40,7 +40,7 @@ npx jsr add @cross/dir
 import relevant functions.
 
 ```javascript
-import { dir } from "@cross/dir";
+import { dir, DirectoryTypes } from "@cross/dir";
 ```
 
 Usage
@@ -52,6 +52,19 @@ console.log(`Home directory: ${await dir("home")}`);
 
 //You can also use the DirectoryTypes enum.
 const userHome = await dir(DirectoryTypes.home);
+```
+
+**Error handling**
+
+`dir()` throws if the directory type is not supported on the current platform, or if the directory could not be resolved
+(e.g. the environment variable is unset and there is no fallback).
+
+```javascript
+try {
+    const projects = await dir("projects");
+} catch (error) {
+    console.error(error.message);
+}
 ```
 
 **Note concerning Windows special folders**
@@ -67,8 +80,8 @@ const userHome = await dir("home", true);
 
 **Note concerning Linux user directories**
 
-User directories such as `download`, `document`, `audio`, `desktop` etc. are first looked up as environment variables
-(`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
+User directories such as `download`, `document`, `audio`, `desktop`, `projects` etc. are first looked up as environment
+variables (`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
 [xdg-user-dirs](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/) file `$XDG_CONFIG_HOME/user-dirs.dirs`
 (default `~/.config/user-dirs.dirs`). Entries set to the home directory itself are considered disabled and will throw.
 
@@ -95,8 +108,15 @@ User directories such as `download`, `document`, `audio`, `desktop` etc. are fir
 | template       | A directory for storing user template files.                           |         | X                 | X     |       |
 | video          | A directory for storing video files.                                   |         | X                 | X     | X     |
 
-> **Note** For some Windows directories where simple environmental variables is not enough `dir`uses powershell to
-> retrieve the path if invoked with true as second function argument. `dir("type", true)`
+> **Note** For some Windows directories where simple environment variables are not enough, `dir` uses PowerShell to
+> retrieve the path if invoked with true as the second function argument. `dir("type", true)`
+
+## Development
+
+```bash
+deno task test   # run tests
+deno task check  # format, lint, type check, test and check dependencies
+```
 
 ## Issues
 
