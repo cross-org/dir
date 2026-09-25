@@ -24,6 +24,9 @@ export enum DirectoryTypes {
     /**  A directory for storing application-specific local (non-roaming) data. */
     data_local = "data_local",
 
+    /**  A directory for storing application state that should persist between restarts, like logs and history. */
+    state = "state",
+
     /**  The user's default download directory. */
     download = "download",
 
@@ -47,6 +50,9 @@ export enum DirectoryTypes {
 
     /**  A directory for storing picture files. */
     picture = "picture",
+
+    /**  The user's projects directory (Linux only). */
+    projects = "projects",
 
     /**  A directory for storing shared data accessible to all users (Linux/macOS). */
     public = "public",
@@ -125,6 +131,14 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
         ],
         macos: [{ key: "HOME", extraFolder: "/Library/Application Support" }],
     },
+    [DirectoryTypes.state]: {
+        windows: [{ key: "LOCALAPPDATA" }, { key: "LocalApplicationData", winSpecialFolder: true }],
+        linux: [
+            { key: "XDG_STATE_HOME" },
+            { key: "HOME", extraFolder: "/.local/state" },
+        ],
+        macos: [{ key: "HOME", extraFolder: "/Library/Application Support" }],
+    },
     [DirectoryTypes.audio]: {
         windows: [{ key: "MyMusic", winSpecialFolder: true }],
         linux: [{ key: "XDG_MUSIC_DIR", userDirs: true }],
@@ -157,6 +171,9 @@ export const directoryConfig: { [key in DirectoryTypes]: DirectoryPathConfig } =
         windows: [{ key: "MyPictures", winSpecialFolder: true }],
         linux: [{ key: "XDG_PICTURES_DIR", userDirs: true }],
         macos: [{ key: "HOME", extraFolder: "/Pictures" }],
+    },
+    [DirectoryTypes.projects]: {
+        linux: [{ key: "XDG_PROJECTS_DIR", userDirs: true }],
     },
     [DirectoryTypes.public]: {
         windows: [{ key: "PUBLIC" }],

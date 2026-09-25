@@ -16,7 +16,7 @@ Part of the @cross suite - check out our growing collection of cross-runtime too
 
 - **Cross-Platform Support:** Works consistently on Windows, macOS, and Linux.
 - **Standard Directories:** Retrieve paths for common directories like `home`, `cache`, `config`, `data`, `download`,
-  `tmp`, and more.
+  `projects`, `tmp`, and more.
 - **Reliable:** Leverages well-established environment variables and platform-specific methods.
 - **TypeScript Support:** Includes TypeScript definitions for improved type safety.
 
@@ -81,6 +81,7 @@ User directories such as `download`, `document`, `audio`, `desktop` etc. are fir
 | config         | A directory for storing application configuration data.                | X       | X                 | X     | X     |
 | data           | A directory for storing application-specific data (non-cache).         | X       | X                 | X     | X     |
 | data_local     | A directory for storing application-specific local (non-roaming) data. | X       | X                 | X     | X     |
+| state          | A directory for storing persistent application state (logs, history).  | X       | X                 | X     | X     |
 | download       | The user's default download directory.                                 |         | X                 | X     | X     |
 | tmp            | A temporary directory for storing short-lived files.                   | X       |                   | X     | X     |
 | executable     | A directory for storing executable files (Linux only).                 |         |                   | X     |       |
@@ -89,6 +90,7 @@ User directories such as `download`, `document`, `audio`, `desktop` etc. are fir
 | document       | The user's documents directory.                                        |         | X                 | X     | X     |
 | font           | A directory for storing font files.                                    |         | X                 | X     | X     |
 | picture        | A directory for storing picture files.                                 |         | X                 | X     | X     |
+| projects       | The user's projects directory (Linux only).                            |         |                   | X     |       |
 | public         | A directory for storing shared data accessible to all users.           | X       |                   | X     | X     |
 | template       | A directory for storing user template files.                           |         | X                 | X     |       |
 | video          | A directory for storing video files.                                   |         | X                 | X     | X     |
