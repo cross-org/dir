@@ -10,6 +10,18 @@ jobs:
         with:
             entrypoint: mod.ts
 
+    # Keep jsr_dependencies in sync with the imports in deno.jsonc.
+    bun_ci:
+        uses: cross-org/workflows/.github/workflows/bun-ci.yml@main
+        with:
+            jsr_dependencies: "@cross/env @cross/runtime @cross/utils @cross/test @std/assert"
+
+    node_ci:
+        uses: cross-org/workflows/.github/workflows/node-ci.yml@main
+        with:
+            jsr_dependencies: "@cross/env @cross/runtime @cross/utils @cross/test @std/assert"
+            test_target: "src/*.test.ts"
+
     # deno_ci only runs on Linux, this covers the Windows and macOS code paths.
     platform_tests:
         strategy:

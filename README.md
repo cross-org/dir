@@ -86,7 +86,7 @@ const downloads = await dir("download", { windowsSpecialFolders: true });
 ```
 
 > **Deprecated** Passing a boolean as the second argument, `dir("download", true)`, still works but is deprecated in
-> favor of the options object and will be removed in 2.0.
+> favor of the options object and may be removed in a future major version.
 
 **Note concerning Linux user directories**
 
@@ -123,9 +123,9 @@ variables (`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
 > `dir("type", { windowsSpecialFolders: true })`
 
 > **Note** On macOS, `config` currently resolves to `~/Library/Preferences`, which Apple reserves for system-managed
-> `.plist` files. In 2.0, `config` will move to `~/Library/Application Support`. `preference` resolves to the same path
-> as `config` on all platforms except macOS, where it stays `~/Library/Preferences`. If you rely on the current macOS
-> location, use `preference` instead.
+> `.plist` files. A future major version may move `config` to `~/Library/Application Support`. `preference` resolves to
+> the same path as `config` on all platforms except macOS, where it stays `~/Library/Preferences`. If you rely on the
+> current macOS location, use `preference` instead.
 
 ## Development
 

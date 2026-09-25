@@ -20,8 +20,8 @@ export enum DirectoryTypes {
 
     /**
      * A directory for storing application preferences. Same as `config`, except on macOS where it is
-     * `~/Library/Preferences`. Use this to keep the current macOS `config` location, which is planned to move to
-     * `~/Library/Application Support` in 2.0.
+     * `~/Library/Preferences`. Use this to keep the current macOS `config` location, which may move to
+     * `~/Library/Application Support` in a future major version.
      */
     preference = "preference",
 
