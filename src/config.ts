@@ -54,7 +54,7 @@ export enum DirectoryTypes {
     /**  The user's projects directory (Linux only). */
     projects = "projects",
 
-    /**  A directory for storing shared data accessible to all users (Linux/macOS). */
+    /**  A directory for storing shared data accessible to all users. */
     public = "public",
 
     /** A directory for storing user template files. */
