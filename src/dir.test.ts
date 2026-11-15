@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import process from "node:process";
 import { dir, DirectoryNotFoundError, DirectoryTypes, UnsupportedDirectoryError, windowsFolderCommand } from "./dir.ts";
 import { directoryConfig } from "./config.ts";
+import { getUserDir } from "./userdirs.ts";
 
 const platform = getCurrentOS();
 const isLinux = platform === "linux";
@@ -198,6 +199,25 @@ if (isLinux) {
         } finally {
             await rm(home, { recursive: true, force: true });
         }
+    });
+
+    test("linux: relative TMPDIR is ignored in favor of the default", async () => {
+        await withEnv({ TMPDIR: "relative/tmp" }, async () => {
+            assertEquals(await dir("tmp"), "/tmp");
+        });
+    });
+
+    test("linux: relative HOME is ignored", async () => {
+        await withEnv({ HOME: "relative/home", XDG_CACHE_HOME: undefined }, async () => {
+            await assertRejects(() => dir("home"), DirectoryNotFoundError);
+            await assertRejects(() => dir("cache"), DirectoryNotFoundError);
+        });
+    });
+
+    test("linux: getUserDir returns undefined for a relative HOME", async () => {
+        await withEnv({ HOME: "relative/home", XDG_CONFIG_HOME: undefined }, async () => {
+            assertEquals(await getUserDir("XDG_DOWNLOAD_DIR"), undefined);
+        });
     });
 }
 

@@ -9,7 +9,7 @@ import {
     isWindowsConfigItem,
 } from "./config.ts";
 import { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
-import { getEnvValue, getUserDir } from "./userdirs.ts";
+import { getAbsoluteEnv, getUserDir } from "./userdirs.ts";
 export { DirectoryTypes } from "./config.ts";
 export { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
 
@@ -100,7 +100,7 @@ export async function dir(type: string, options?: DirOptions | boolean): Promise
                 gotWindowsConfigItem = true;
             }
         } else {
-            baseEnv = getEnvValue(config.key);
+            baseEnv = getAbsoluteEnv(config.key);
             if (!baseEnv && isUserDirsConfigItem(config)) {
                 baseEnv = await getUserDir(config.key);
             }

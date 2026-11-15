@@ -94,8 +94,10 @@ User directories such as `download`, `document`, `audio`, `desktop`, `projects` 
 variables (`XDG_DOWNLOAD_DIR`, ...). If unset, they are read from the
 [xdg-user-dirs](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/) file `$XDG_CONFIG_HOME/user-dirs.dirs`
 (default `~/.config/user-dirs.dirs`). Entries set to the home directory itself are considered disabled and will throw.
-Per the [XDG Base Directory specification](https://specifications.freedesktop.org/basedir/latest/), `XDG_*` values must
-be absolute paths; relative values are ignored and the `$HOME`-based default is used instead.
+Relative values of any environment variable are ignored, since `dir()` always returns absolute paths; the next fallback
+(such as the `$HOME`-based default) is used instead. This follows the
+[XDG Base Directory specification](https://specifications.freedesktop.org/basedir/latest/), which requires `XDG_*`
+values to be absolute.
 
 ## Supported directories
 
