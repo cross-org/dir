@@ -3,17 +3,18 @@ import { isAbsolute } from "node:path";
 import { getEnv } from "@cross/env";
 
 /**
- * Reads an environment variable, treating relative values for `XDG_*` variables as unset.
+ * Reads an environment variable, treating non-absolute values as unset.
  *
- * XDG base-directory and xdg-user-dirs variables must hold absolute paths; relative values are invalid and ignored,
+ * The XDG Base Directory specification requires `XDG_*` values to be absolute paths, and `dir()` always returns
+ * absolute paths, so every environment-derived path is held to the same rule. Relative values are invalid and ignored,
  * letting the next configuration item or default apply.
  *
  * @param {string} key - The environment variable name.
- * @returns {string | undefined} The value, or undefined when unset or when a relative `XDG_*` value was ignored.
+ * @returns {string | undefined} The value, or undefined when unset or when a non-absolute value was ignored.
  */
-export function getEnvValue(key: string): string | undefined {
+export function getAbsoluteEnv(key: string): string | undefined {
     const value = getEnv(key);
-    if (value !== undefined && key.startsWith("XDG_") && !isAbsolute(value)) {
+    if (value !== undefined && !isAbsolute(value)) {
         return undefined;
     }
     return value;
@@ -66,10 +67,10 @@ export function parseUserDirs(content: string, home: string): Record<string, str
  * @returns {Promise<string | undefined>} The resolved path, or undefined if the file or entry is missing or disabled.
  */
 export async function getUserDir(key: string): Promise<string | undefined> {
-    const home = getEnv("HOME");
+    const home = getAbsoluteEnv("HOME");
     if (!home) return undefined;
 
-    const configHome = getEnvValue("XDG_CONFIG_HOME") || `${home}/.config`;
+    const configHome = getAbsoluteEnv("XDG_CONFIG_HOME") || `${home}/.config`;
 
     let content: string;
     try {

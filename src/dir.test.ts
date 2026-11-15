@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import process from "node:process";
 import { dir, DirectoryNotFoundError, DirectoryTypes, UnsupportedDirectoryError, windowsFolderCommand } from "./dir.ts";
 import { directoryConfig } from "./config.ts";
+import { getUserDir } from "./userdirs.ts";
 
 const platform = getCurrentOS();
 const isLinux = platform === "linux";
@@ -199,6 +200,40 @@ if (isLinux) {
             await rm(home, { recursive: true, force: true });
         }
     });
+
+    test("linux: relative TMPDIR is ignored in favor of the default", async () => {
+        await withEnv({ TMPDIR: "relative/tmp" }, async () => {
+            assertEquals(await dir("tmp"), "/tmp");
+        });
+    });
+
+    test("linux: relative HOME is ignored", async () => {
+        await withEnv({ HOME: "relative/home", XDG_CACHE_HOME: undefined }, async () => {
+            await assertRejects(() => dir("home"), DirectoryNotFoundError);
+            await assertRejects(() => dir("cache"), DirectoryNotFoundError);
+        });
+    });
+
+    test("linux: user-dirs.dirs is not expanded with a relative HOME", async () => {
+        await withUserDirs(
+            `XDG_DOWNLOAD_DIR="$HOME/Downloads"`,
+            { HOME: "relative/home", XDG_DOWNLOAD_DIR: undefined },
+            async () => {
+                assertEquals(await getUserDir("XDG_DOWNLOAD_DIR"), undefined);
+                await assertRejects(() => dir("download"), DirectoryNotFoundError);
+            },
+        );
+    });
+}
+
+if (platform === "macos") {
+    test("macos: relative TMPDIR and HOME are ignored", async () => {
+        await withEnv({ TMPDIR: "relative/tmp", HOME: "relative/home" }, async () => {
+            await assertRejects(() => dir("tmp"), DirectoryNotFoundError);
+            await assertRejects(() => dir("home"), DirectoryNotFoundError);
+            await assertRejects(() => dir("cache"), DirectoryNotFoundError);
+        });
+    });
 }
 
 test("errors expose type and platform and keep their messages", async () => {
@@ -235,6 +270,12 @@ test("winShellFolder is only used together with winSpecialFolder", () => {
 });
 
 if (isWindows) {
+    test("windows: relative TMP falls through to TEMP", async () => {
+        await withEnv({ TMP: "relative\\tmp", TEMP: "C:\\cross-dir-temp" }, async () => {
+            assertEquals(await dir("tmp"), "C:\\cross-dir-temp");
+        });
+    });
+
     test("windows: shell:Downloads lookup returns an absolute path", async () => {
         // Runs the shell folder lookup directly, since dir() falls back to %USERPROFILE%\Downloads when it fails.
         const ps = await spawn(["powershell", "-Command", windowsFolderCommand("Downloads", true)]);
