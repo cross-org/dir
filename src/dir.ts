@@ -1,4 +1,3 @@
-import { getEnv } from "@cross/env";
 import { getCurrentOS } from "@cross/runtime";
 import { spawn } from "@cross/utils";
 import { normalize, parse } from "node:path";
@@ -10,7 +9,7 @@ import {
     isWindowsConfigItem,
 } from "./config.ts";
 import { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
-import { getUserDir } from "./userdirs.ts";
+import { getEnvValue, getUserDir } from "./userdirs.ts";
 export { DirectoryTypes } from "./config.ts";
 export { DirectoryNotFoundError, UnsupportedDirectoryError } from "./errors.ts";
 
@@ -101,7 +100,7 @@ export async function dir(type: string, options?: DirOptions | boolean): Promise
                 gotWindowsConfigItem = true;
             }
         } else {
-            baseEnv = getEnv(config.key);
+            baseEnv = getEnvValue(config.key);
             if (!baseEnv && isUserDirsConfigItem(config)) {
                 baseEnv = await getUserDir(config.key);
             }

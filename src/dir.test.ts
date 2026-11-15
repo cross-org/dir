@@ -2,7 +2,7 @@ import { test } from "@cross/test";
 import { assertEquals, assertRejects } from "@std/assert";
 import { getCurrentOS } from "@cross/runtime";
 import { spawn } from "@cross/utils";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import process from "node:process";
 import { dir, DirectoryNotFoundError, DirectoryTypes, UnsupportedDirectoryError, windowsFolderCommand } from "./dir.ts";
@@ -149,6 +149,55 @@ if (isLinux) {
                 await assertRejects(() => dir("audio"), DirectoryNotFoundError);
             },
         );
+    });
+
+    test("linux: relative, tilde and empty XDG_* values are ignored in favor of home defaults", async () => {
+        await withEnv(
+            {
+                HOME: "/home/user",
+                XDG_CONFIG_HOME: "~/config",
+                XDG_DATA_HOME: "",
+                XDG_CACHE_HOME: "cache",
+                XDG_STATE_HOME: "~/state",
+                XDG_BIN_HOME: "",
+            },
+            async () => {
+                assertEquals(await dir("config"), "/home/user/.config");
+                assertEquals(await dir("data"), "/home/user/.local/share");
+                assertEquals(await dir("cache"), "/home/user/.cache");
+                assertEquals(await dir("state"), "/home/user/.local/state");
+                assertEquals(await dir("executable"), "/home/user/.local/bin");
+            },
+        );
+    });
+
+    test("linux: relative XDG_DATA_HOME is ignored for font", async () => {
+        await withEnv({ HOME: "/home/user", XDG_DATA_HOME: "share" }, async () => {
+            assertEquals(await dir("font"), "/home/user/.local/share/fonts");
+        });
+    });
+
+    test("linux: relative XDG_DOWNLOAD_DIR is ignored in favor of user-dirs.dirs", async () => {
+        await withUserDirs(
+            `XDG_DOWNLOAD_DIR="$HOME/Downloads"`,
+            { HOME: "/home/user", XDG_DOWNLOAD_DIR: "Downloads" },
+            async () => {
+                assertEquals(await dir("download"), "/home/user/Downloads");
+            },
+        );
+    });
+
+    test("linux: relative XDG_CONFIG_HOME falls back to $HOME/.config for user-dirs.dirs", async () => {
+        const home = await mkdtemp(`${tmpdir()}/cross-dir-home-`);
+        try {
+            await mkdir(`${home}/.config`, { recursive: true });
+            await writeFile(`${home}/.config/user-dirs.dirs`, `XDG_DOWNLOAD_DIR="$HOME/Downloads"\n`);
+            await withEnv({ HOME: home, XDG_CONFIG_HOME: "config", XDG_DOWNLOAD_DIR: undefined }, async () => {
+                assertEquals(await dir("download"), `${home}/Downloads`);
+            });
+        } finally {
+            await rm(home, { recursive: true, force: true });
+        }
     });
 }
 
